@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+
+require 'aws-sdk'
+require 'base64'
+require 'encryptor'
+require 'json'
+require_relative 'lib/kms.rb'
+
+bucket = ""
+file = ARGV[1]
+
+kms = Kms.new(bucket)
+
+case ARGV[0]
+when "encrypt"
+  kms.encrypt(file)
+when "decrypt"
+  kms.decrypt(file)
+when "put"
+  kms.put(file)
+when "get"
+  kms.get(file)
+when "update"
+  kms.update(file)
+when "delete"
+  kms.delete(file)
+when "list"
+  kms.list
+else
+  STDOUT.puts <<-EOF
+  Usage: #{$0} command [arguments...]
+    Commands:
+      encrypt - creates encrypted data from a file
+      decrypt - decrypts a file
+      put - stores file to an s3 bucket
+      get - retrieves file from an s3 bucket
+      update - updates a file stored in s3
+      delete - deletes a file from an s3 bucket
+      list - lists all files stored in an s3 bucket
+
+    Examples:
+      #{$0} encrypt unencrypted_file > encrypted_file
+      #{$0} decrypt encrypted_file
+      #{$0} decrypt encrypted_file > unencrypted_file
+      #{$0} put file
+      #{$0} get file
+      #{$0} update file
+      #{$0} delete file
+      #{$0} list
+  EOF
+end
