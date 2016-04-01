@@ -13,9 +13,9 @@ kms = Kms.new(bucket)
 
 case ARGV[0]
 when "encrypt"
-  kms.encrypt(file)
+  puts kms.encrypt(file)
 when "decrypt"
-  kms.decrypt(file)
+  puts kms.decrypt(file)
 when "put"
   kms.put(file)
 when "get"

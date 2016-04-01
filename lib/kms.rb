@@ -23,7 +23,8 @@ class Kms
     iv = OpenSSL::Cipher::Cipher.new('aes-256-cbc').random_iv
     encryptedData = Encryptor.encrypt(:value => data, :key => secretKey, :iv => iv, :salt => salt)
 
-    puts JSON.generate({ 'ciphertext' => Base64.encode64(encryptedData), 'dataKey' => Base64.encode64(resp.ciphertext_blob), 'iv' => Base64.encode64(iv), 'salt' => salt })
+    #Return the encrypted data
+    return JSON.generate({ 'ciphertext' => Base64.encode64(encryptedData), 'dataKey' => Base64.encode64(resp.ciphertext_blob), 'iv' => Base64.encode64(iv), 'salt' => salt })
   end
 
   def decrypt(file)
@@ -35,14 +36,14 @@ class Kms
     plaintextResp = @kms.decrypt(:ciphertext_blob => dataKey)
     plaintextKey = plaintextResp.plaintext
 
-    #return decrypted data
-    puts Encryptor.decrypt(:value => Base64.decode64(data['ciphertext']), :key => plaintextKey, :iv => Base64.decode64(data['iv']), :salt => data['salt'])
+    #Return decrypted data
+    return Encryptor.decrypt(:value => Base64.decode64(data['ciphertext']), :key => plaintextKey, :iv => Base64.decode64(data['iv']), :salt => data['salt'])
   end
 
   def put(file)
-    #Parse out only the file name (useful due to the updateS3 method)
+    #Parse out only the file name (useful due to the update method)
     fileName = file.split("/")[-1]
-    fileName = fileName.split(".updated-_-12345678901")[0]
+    fileName = fileName.split(".updated-_-1357915")[0]
 
     File.open(file, 'rb') do |f|
       @s3.put_object(bucket: @bucket, key: fileName, body: f)
@@ -59,15 +60,15 @@ class Kms
     #Use shared memory to temporarily store the file if linux
     if File.exists?('/etc/issue')
       os = 'linux'
-      fullFile = '/dev/shm/' + file
+      fullFile = "/dev/shm/#{file}"
     else
       os = 'mac'
-      fullFile = Dir.pwd + '/' + file
+      fullFile = Dir.pwd + "/#{file}"
     end
 
-    tmp = fullFile + '.tmp-_-12345678901555'
-    decrypted = fullFile + '.decrypted-_-12345678901555'
-    updated = fullFile + '.updated-_-12345678901555'
+    tmp = "#{fullFile}.tmp-_-1357915"
+    decrypted = "#{fullFile}.decrypted-_-1357915"
+    updated = "#{fullFile}.updated-_-1357915"
 
     #Grab the file and store it as a tmp file
     File.open(tmp, 'wb') do |f|
@@ -82,9 +83,10 @@ class Kms
     system('vi', decrypted)
 
     #Encrypt the updated file and upload it
-    File.open(updated, 'wb') do |g|
-      g.puts encrypt(decrypted)
+    File.open(updated, 'wb') do |f|
+      f.puts encrypt(decrypted)
     end
+
     put(updated)
 
     #Cleanup
