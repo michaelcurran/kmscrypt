@@ -5,47 +5,78 @@ require 'base64'
 require 'encryptor'
 require 'json'
 require_relative 'lib/kms.rb'
+require_relative 'lib/s3.rb'
+require_relative 'lib/dbb.rb'
 
 bucket = ""
+table = ""
 file = ARGV[1]
+key = ARGV[1]
+value = ARGV[2]
 
-kms = Kms.new(bucket)
+kms = Kms.new
+s3 = S3Kms.new(bucket)
+ddb = DdbKms.new(table)
 
 case ARGV[0]
 when "encrypt"
   puts kms.encrypt(file)
 when "decrypt"
   puts kms.decrypt(file)
-when "put"
-  kms.put(file)
-when "get"
-  kms.get(file)
-when "update"
-  kms.update(file)
-when "delete"
-  kms.delete(file)
-when "list"
-  kms.list
+when "puts3"
+  s3.puts3(file)
+when "gets3"
+  s3.gets3(file)
+when "updates3"
+  s3.updates3(file)
+when "deletes3"
+  s3.deletes3(file)
+when "lists3"
+  s3.lists3
+when "putdb"
+  ddb.putdb(key,value)
+when "getdb"
+  puts ddb.getdb(key)
+when "decryptdb"
+  ddb.decryptdb(key)
+when "listdb"
+  ddb.listdb
+when "deletedb"
+  ddb.deletedb(key)
 else
   STDOUT.puts <<-EOF
   Usage: #{$0} command [arguments...]
     Commands:
       encrypt - creates encrypted data from a file
       decrypt - decrypts a file
-      put - stores file to an s3 bucket
-      get - retrieves file from an s3 bucket
-      update - updates a file stored in s3
-      delete - deletes a file from an s3 bucket
-      list - lists all files stored in an s3 bucket
+
+      puts3 - stores file to an s3 bucket
+      gets3 - retrieves file from an s3 bucket
+      updates3 - updates a file stored in s3
+      deletes3 - deletes a file from an s3 bucket
+      lists3 - lists all files stored in an s3 bucket
+
+      putdb - stores or updates a key and encrypted value in DynamoDB
+      getdb - retrieves encrypted stored value for a given key from DynamoDB
+      decryptdb - retrieves stored value from DynamoDB and returns it decrypted
+      deletedb - deletes a stored key/value pair in Dynamodb
+      listdb - lists all keys stored in Dynamodb
 
     Examples:
       #{$0} encrypt unencrypted_file > encrypted_file
       #{$0} decrypt encrypted_file
       #{$0} decrypt encrypted_file > unencrypted_file
-      #{$0} put file
-      #{$0} get file
-      #{$0} update file
-      #{$0} delete file
-      #{$0} list
+
+      #{$0} puts3 file
+      #{$0} gets3 file
+      #{$0} updates3 file
+      #{$0} deletes3 file
+      #{$0} lists3
+
+      #{$0} putdb key_name 'a secret here'
+      #{$0} getdb key_name > filename
+      #{$0} decryptdb key_name
+      #{$0} deletedb key_name
+      #{$0} listdb
   EOF
 end
