@@ -22,12 +22,10 @@ class S3Kms < Kms
   end
 
   def updates3(file)
-    #Use shared memory to temporarily store the file if linux
-    if File.exists?('/etc/issue')
-      os = 'linux'
+    #Use shared memory if available
+    if File.directory?('/dev/shm')
       fullFile = "/dev/shm/#{file}"
     else
-      os = 'mac'
       fullFile = Dir.pwd + "/#{file}"
     end
 

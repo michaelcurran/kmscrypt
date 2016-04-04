@@ -51,14 +51,22 @@ class DdbKms < Kms
 
     #Stores it in a tmp file as json
     file = '.tmp-encryptdb-_-1357915'
-    File.open(file, 'wb') do |f|
+
+    #Use shared memory if available
+    if File.directory?('/dev/shm')
+      fullFile = "/dev/shm/#{file}"
+    else
+      fullFile = Dir.pwd + "/#{file}"
+    end
+    
+    File.open(fullFile, 'wb') do |f|
       f.puts resp.item.to_json
     end
 
-    puts decrypt(file)
+    puts decrypt(fullFile)
 
     #Cleanup
-    File.delete(file)
+    File.delete(fullFile)
   end
 
   def listdb
