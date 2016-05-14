@@ -21,8 +21,8 @@ class Kms
     iv = OpenSSL::Cipher::Cipher.new('aes-256-cbc').random_iv
     encryptedData = Encryptor.encrypt(:value => data, :key => secretKey, :iv => iv, :salt => salt)
 
-    #Return the encrypted data
-    return JSON.generate({ 'ciphertext' => Base64.encode64(encryptedData), 'dataKey' => Base64.encode64(resp.ciphertext_blob), 'iv' => Base64.encode64(iv), 'salt' => salt })
+    #The encrypted data
+    JSON.generate({ 'ciphertext' => Base64.encode64(encryptedData), 'dataKey' => Base64.encode64(resp.ciphertext_blob), 'iv' => Base64.encode64(iv), 'salt' => salt })
   end
 
   def decrypt(file)
@@ -34,7 +34,7 @@ class Kms
     plaintextResp = @kms.decrypt(:ciphertext_blob => dataKey)
     plaintextKey = plaintextResp.plaintext
 
-    #Return decrypted data
-    return Encryptor.decrypt(:value => Base64.decode64(data['ciphertext']), :key => plaintextKey, :iv => Base64.decode64(data['iv']), :salt => data['salt'])
+    #The decrypted data
+    Encryptor.decrypt(:value => Base64.decode64(data['ciphertext']), :key => plaintextKey, :iv => Base64.decode64(data['iv']), :salt => data['salt'])
   end
 end
