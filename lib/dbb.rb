@@ -42,7 +42,7 @@ class DdbKms < Kms
   def getdb(key)
     #Get the encrypted data for a key
     resp = @ddb.get_item({table_name: @table, key: { "name" => "#{key}"}})
-    return resp.item.to_json
+    resp.item.to_json
   end
 
   def decryptdb(key)
@@ -58,7 +58,7 @@ class DdbKms < Kms
     else
       fullFile = Dir.pwd + "/#{file}"
     end
-    
+
     File.open(fullFile, 'wb') do |f|
       f.puts resp.item.to_json
     end
