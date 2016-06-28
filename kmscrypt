@@ -8,8 +8,8 @@ require_relative 'lib/kms.rb'
 require_relative 'lib/s3.rb'
 require_relative 'lib/dbb.rb'
 
-bucket = ""
-table = ""
+bucket = ''
+table = ''
 file = ARGV[1]
 key = ARGV[1]
 value = ARGV[2]
@@ -19,33 +19,33 @@ s3 = S3Kms.new(bucket)
 ddb = DdbKms.new(table)
 
 case ARGV[0]
-when "encrypt"
+when 'encrypt'
   puts kms.encrypt(file)
-when "decrypt"
+when 'decrypt'
   puts kms.decrypt(file)
-when "puts3"
+when 'puts3'
   s3.puts3(file)
-when "gets3"
+when 'gets3'
   s3.gets3(file)
-when "updates3"
+when 'updates3'
   s3.updates3(file)
-when "deletes3"
+when 'deletes3'
   s3.deletes3(file)
-when "lists3"
+when 'lists3'
   s3.lists3
-when "putdb"
-  ddb.putdb(key,value)
-when "getdb"
+when 'putdb'
+  ddb.putdb(key, value)
+when 'getdb'
   puts ddb.getdb(key)
-when "decryptdb"
+when 'decryptdb'
   ddb.decryptdb(key)
-when "listdb"
+when 'listdb'
   ddb.listdb
-when "deletedb"
+when 'deletedb'
   ddb.deletedb(key)
 else
   STDOUT.puts <<-EOF
-  Usage: #{$0} command [arguments...]
+  Usage: #{$PROGRAM_NAME} command [arguments...]
     Commands:
       encrypt - creates encrypted data from a file
       decrypt - decrypts a file
@@ -63,20 +63,20 @@ else
       listdb - lists all keys stored in Dynamodb
 
     Examples:
-      #{$0} encrypt unencrypted_file > encrypted_file
-      #{$0} decrypt encrypted_file
-      #{$0} decrypt encrypted_file > unencrypted_file
+      #{$PROGRAM_NAME} encrypt unencrypted_file > encrypted_file
+      #{$PROGRAM_NAME} decrypt encrypted_file
+      #{$PROGRAM_NAME} decrypt encrypted_file > unencrypted_file
 
-      #{$0} puts3 file
-      #{$0} gets3 file
-      #{$0} updates3 file
-      #{$0} deletes3 file
-      #{$0} lists3
+      #{$PROGRAM_NAME} puts3 file
+      #{$PROGRAM_NAME} gets3 file
+      #{$PROGRAM_NAME} updates3 file
+      #{$PROGRAM_NAME} deletes3 file
+      #{$PROGRAM_NAME} lists3
 
-      #{$0} putdb key_name 'a secret here'
-      #{$0} getdb key_name > filename
-      #{$0} decryptdb key_name
-      #{$0} deletedb key_name
-      #{$0} listdb
+      #{$PROGRAM_NAME} putdb key_name 'a secret here'
+      #{$PROGRAM_NAME} getdb key_name > filename
+      #{$PROGRAM_NAME} decryptdb key_name
+      #{$PROGRAM_NAME} deletedb key_name
+      #{$PROGRAM_NAME} listdb
   EOF
 end
